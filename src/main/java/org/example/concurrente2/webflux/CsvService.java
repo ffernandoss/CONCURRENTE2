@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 
-
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class CsvService {
@@ -33,6 +33,8 @@ public class CsvService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    private final AtomicBoolean stopFlag = new AtomicBoolean(false);
+
     @Transactional
     public void clearDatabase() {
         valorNormalRepository.deleteAll();
@@ -40,27 +42,35 @@ public class CsvService {
         logger.info("Base de datos vaciada y auto-increment reiniciado");
     }
 
-
-
     @Transactional
     public Flux<ValorNormal> loadCsvData(String filePath) {
         logger.info("Starting to load CSV data from file: " + filePath);
+        stopFlag.set(false);
         return Flux.create(sink -> {
             try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
                 String[] line;
                 while ((line = reader.readNext()) != null) {
+                    if (stopFlag.get()) {
+                        sink.complete();
+                        break;
+                    }
                     ValorNormal valorNormal = new ValorNormal();
                     valorNormal.setValor(Double.parseDouble(line[0]));
                     valorNormalRepository.save(valorNormal);
                     rabbitTemplate.convertAndSend("databaseQueue", "Nuevo valor cargado en la base de datos: ID = " + valorNormal.getId() + ", Valor = " + valorNormal.getValor());
                     WebSocketHandler.sendMessageToAll("{\"id\": " + valorNormal.getId() + ", \"valor\": " + valorNormal.getValor() + "}");
                     sink.next(valorNormal);
+                    Thread.sleep(3000); // Delay of 3 seconds
                 }
                 sink.complete();
-            } catch (IOException | CsvValidationException e) {
+            } catch (IOException | CsvValidationException | InterruptedException e) {
                 logger.error("Error reading CSV file", e);
                 sink.error(e);
             }
         });
+    }
+
+    public void stopLoading() {
+        stopFlag.set(true);
     }
 }

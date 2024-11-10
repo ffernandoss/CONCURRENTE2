@@ -8,6 +8,7 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -20,10 +21,28 @@
             align-items: center;
             gap: 20px; /* Add gap between balls */
         }
+        #stop-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
 <div id="ball-container">Esperando datos...</div>
+<button id="stop-button">Detener Generación de Datos</button>
 <script src="/app.js"></script>
+<script>
+    document.getElementById('stop-button').addEventListener('click', function() {
+        fetch('/stop-loading', { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Generación de datos detenida');
+                } else {
+                    console.error('Error al detener la generación de datos');
+                }
+            });
+    });
+</script>
 </body>
 </html>

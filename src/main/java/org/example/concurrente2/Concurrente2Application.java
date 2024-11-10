@@ -34,6 +34,8 @@ public class Concurrente2Application implements CommandLineRunner {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (java.awt.HeadlessException e) {
+            System.err.println("Headless environment detected. Unable to open browser.");
         }
     }
 }

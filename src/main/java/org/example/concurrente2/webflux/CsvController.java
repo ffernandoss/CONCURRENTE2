@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -21,5 +22,11 @@ public class CsvController {
     public Flux<ValorNormal> loadCsv(@RequestParam String filePath) {
         logger.info("Received request to load CSV from file: " + filePath);
         return csvService.loadCsvData(filePath);
+    }
+
+    @PostMapping("/stop-loading")
+    public void stopLoading() {
+        logger.info("Received request to stop loading CSV data");
+        csvService.stopLoading();
     }
 }
