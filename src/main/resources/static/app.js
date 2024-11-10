@@ -75,6 +75,7 @@ function createBall(id, valor) {
 
     board.appendChild(ball);
 }
+
 // Crear los pines al cargar la página
 createPins();
 

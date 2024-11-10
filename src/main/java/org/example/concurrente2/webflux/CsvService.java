@@ -78,7 +78,7 @@ public class CsvService {
                     if (processedLines % 100 == 0) {
                         rabbitTemplate.convertAndSend("databaseQueue", processedLines + " datos guardados de la normal");
                     }
-                    Thread.sleep(10);
+                    Thread.sleep(200);
                 }
                 sink.complete();
             } catch (IOException | CsvValidationException | InterruptedException e) {
