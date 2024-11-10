@@ -35,6 +35,7 @@ public class CsvService {
 
     private final AtomicBoolean stopFlag = new AtomicBoolean(false);
     private int lastProcessedLine = 0;
+    private int processedLines = 0;
 
     @Transactional
     public void clearDatabase() {
@@ -45,8 +46,9 @@ public class CsvService {
 
     @Transactional
     public Flux<ValorNormal> loadCsvData(String filePath) {
-        logger.info("Starting to load CSV data from file: " + filePath);
+        logger.info("Iniciando la carga de datos CSV desde el archivo: " + filePath);
         stopFlag.set(false);
+        processedLines = 0;
         return Flux.create(sink -> {
             try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
                 String[] line;
@@ -64,11 +66,15 @@ public class CsvService {
                     rabbitTemplate.convertAndSend("databaseQueue", "Nuevo valor cargado en la base de datos: ID = " + valorNormal.getId() + ", Valor = " + valorNormal.getValor());
                     WebSocketHandler.sendMessageToAll("{\"id\": " + valorNormal.getId() + ", \"valor\": " + valorNormal.getValor() + "}");
                     sink.next(valorNormal);
-                    Thread.sleep(3000); // Delay of 3 seconds
+                    processedLines++;
+                    if (processedLines % 100 == 0) {
+                        rabbitTemplate.convertAndSend("databaseQueue", processedLines + " datos guardados");
+                    }
+                    Thread.sleep(100);
                 }
                 sink.complete();
             } catch (IOException | CsvValidationException | InterruptedException e) {
-                logger.error("Error reading CSV file", e);
+                logger.error("Error al leer el archivo CSV", e);
                 sink.error(e);
             }
         });
