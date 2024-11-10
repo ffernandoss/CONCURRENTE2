@@ -53,7 +53,7 @@ public class CsvService {
                     valorNormal.setValor(Double.parseDouble(line[0]));
                     valorNormalRepository.save(valorNormal);
                     rabbitTemplate.convertAndSend("databaseQueue", "Nuevo valor cargado en la base de datos: ID = " + valorNormal.getId() + ", Valor = " + valorNormal.getValor());
-                    WebSocketHandler.sendMessageToAll("{\"id\": " + valorNormal.getId() + "}");
+                    WebSocketHandler.sendMessageToAll("{\"id\": " + valorNormal.getId() + ", \"valor\": " + valorNormal.getValor() + "}");
                     sink.next(valorNormal);
                 }
                 sink.complete();
