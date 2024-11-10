@@ -2,6 +2,8 @@ package org.example.concurrente2.webflux;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.example.concurrente2.ValorNormal;
 import org.example.concurrente2.ValorNormalRepository;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
+
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -25,6 +28,21 @@ public class CsvService {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Transactional
+    public void clearDatabase() {
+        valorNormalRepository.deleteAll();
+        resetAutoIncrement();
+        logger.info("Base de datos vaciada y auto-increment reiniciado");
+    }
+
+    @Transactional
+    public void resetAutoIncrement() {
+        entityManager.createNativeQuery("ALTER TABLE valor_normal AUTO_INCREMENT = 1").executeUpdate();
+    }
 
     @Transactional
     public Flux<ValorNormal> loadCsvData(String filePath) {
