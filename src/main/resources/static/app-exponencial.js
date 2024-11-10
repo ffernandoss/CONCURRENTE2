@@ -1,0 +1,106 @@
+const socket = new WebSocket('ws://localhost:8080/notifications');
+
+socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    createBall(data.id, data.valorE);
+};
+
+function createPins() {
+    const board = document.getElementById('board');
+    const pinSpacing = 40;
+    const rows = 10;
+    const cols = 15;
+    const boardWidth = board.offsetWidth;
+
+    // Crear líneas de separación
+    for (let col = 0; col <= cols; col++) {
+        const x = col * pinSpacing + (boardWidth - (cols * pinSpacing)) / 2;
+        const line = document.createElement('div');
+        line.classList.add('column-line');
+        line.style.left = `${x}px`;
+        line.style.top = `${rows * pinSpacing}px`; // Empieza donde terminan los pines
+        board.appendChild(line);
+    }
+
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            const x = col * pinSpacing + (row % 2 === 0 ? pinSpacing / 2 : 0) + (boardWidth - (cols * pinSpacing)) / 2;
+            const y = row * pinSpacing;
+            const pin = document.createElement('div');
+            pin.classList.add('pin');
+            pin.style.left = `${x}px`;
+            pin.style.top = `${y}px`;
+            board.appendChild(pin);
+        }
+    }
+}
+
+function createBall(id, valor) {
+    const board = document.getElementById('board');
+    const ball = document.createElement('div');
+    ball.classList.add('ball');
+    ball.style.left = `${board.offsetWidth / 2}px`;
+    ball.style.top = '0px';
+    ball.textContent = `ID: ${id}`;
+
+    let x = board.offsetWidth / 2;
+    let y = 0;
+    const pinSpacing = 40;
+    const rows = 10;
+    const interval = setInterval(() => {
+        if (y >= board.offsetHeight - 20) {
+            clearInterval(interval);
+            // Almacenar la bola en la columna correspondiente
+            const column = Math.round(x / pinSpacing);
+            const columnBalls = board.querySelectorAll(`.column-${column}`).length;
+            ball.style.top = `${board.offsetHeight - (columnBalls + 1) * 20}px`;
+            ball.style.left = `${column * pinSpacing}px`; // Alinear con la columna
+            ball.classList.add(`column-${column}`);
+        } else {
+            y += 10; // Incremento más pequeño para una caída más fluida
+            if (y < rows * pinSpacing) {
+                x += Math.random() < 0.5 ? -pinSpacing / 2 : pinSpacing / 2; // Rebotar en los pines
+                x = Math.max(0, Math.min(board.offsetWidth - pinSpacing, x)); // Asegurar que x esté dentro del tablero
+            }
+            ball.style.left = `${x}px`;
+            ball.style.top = `${y}px`;
+        }
+    }, 100); // Intervalo más corto para una caída más fluida
+
+    board.appendChild(ball);
+}
+
+// Crear los pines al cargar la página
+createPins();
+
+// Generar bolas automáticamente al cargar la página
+let ballId = 1;
+let generateBalls = setInterval(() => {
+    createBall(ballId++, Math.random());
+}, 1000); // Generar una bola cada segundo
+
+document.getElementById('stop-exponential-button').addEventListener('click', function() {
+    clearInterval(generateBalls);
+    fetch('/stop-loading-exponential', { method: 'POST' })
+        .then(response => {
+            if (response.ok) {
+                console.log('Flujo exponencial detenido');
+            } else {
+                console.error('Error al detener el flujo exponencial');
+            }
+        });
+});
+
+document.getElementById('resume-exponential-button').addEventListener('click', function() {
+    generateBalls = setInterval(() => {
+        createBall(ballId++, Math.random());
+    }, 1000); // Generar una bola cada segundo
+    fetch('/resume-loading-exponential', { method: 'POST' })
+        .then(response => {
+            if (response.ok) {
+                console.log('Flujo exponencial reanudado');
+            } else {
+                console.error('Error al reanudar el flujo exponencial');
+            }
+        });
+});
