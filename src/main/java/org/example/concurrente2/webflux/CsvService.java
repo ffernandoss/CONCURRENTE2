@@ -35,14 +35,10 @@ public class CsvService {
     @Transactional
     public void clearDatabase() {
         valorNormalRepository.deleteAll();
-        resetAutoIncrement();
         logger.info("Base de datos vaciada y auto-increment reiniciado");
     }
 
-    @Transactional
-    public void resetAutoIncrement() {
-        entityManager.createNativeQuery("ALTER TABLE valor_normal AUTO_INCREMENT = 1").executeUpdate();
-    }
+
 
     @Transactional
     public Flux<ValorNormal> loadCsvData(String filePath) {
