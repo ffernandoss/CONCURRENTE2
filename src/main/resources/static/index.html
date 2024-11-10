@@ -21,7 +21,7 @@
             align-items: center;
             gap: 20px; /* Add gap between balls */
         }
-        #stop-button {
+        #stop-button, #restart-button {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
@@ -31,6 +31,7 @@
 <body>
 <div id="ball-container">Esperando datos...</div>
 <button id="stop-button">Detener Generación de Datos</button>
+<button id="restart-button">Reiniciar Generación de Datos</button>
 <script src="/app.js"></script>
 <script>
     document.getElementById('stop-button').addEventListener('click', function() {
@@ -40,6 +41,17 @@
                     console.log('Generación de datos detenida');
                 } else {
                     console.error('Error al detener la generación de datos');
+                }
+            });
+    });
+
+    document.getElementById('restart-button').addEventListener('click', function() {
+        fetch('/restart-loading', { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Generación de datos reiniciada');
+                } else {
+                    console.error('Error al reiniciar la generación de datos');
                 }
             });
     });

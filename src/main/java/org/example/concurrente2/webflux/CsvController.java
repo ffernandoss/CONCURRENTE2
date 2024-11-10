@@ -29,4 +29,10 @@ public class CsvController {
         logger.info("Received request to stop loading CSV data");
         csvService.stopLoading();
     }
+    @PostMapping("/restart-loading")
+    public void restartLoading() {
+        logger.info("Received request to restart loading CSV data");
+        csvService.restartLoading();
+    }
+
 }

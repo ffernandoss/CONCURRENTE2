@@ -34,6 +34,7 @@ public class CsvService {
     private EntityManager entityManager;
 
     private final AtomicBoolean stopFlag = new AtomicBoolean(false);
+    private int lastProcessedLine = 0;
 
     @Transactional
     public void clearDatabase() {
@@ -49,8 +50,11 @@ public class CsvService {
         return Flux.create(sink -> {
             try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
                 String[] line;
+                int currentLine = 0;
                 while ((line = reader.readNext()) != null) {
+                    if (currentLine++ < lastProcessedLine) continue;
                     if (stopFlag.get()) {
+                        lastProcessedLine = currentLine;
                         sink.complete();
                         break;
                     }
@@ -72,5 +76,10 @@ public class CsvService {
 
     public void stopLoading() {
         stopFlag.set(true);
+    }
+
+    public void restartLoading() {
+        stopFlag.set(false);
+        loadCsvData("src/main/resources/datos_normales.csv").subscribe();
     }
 }
