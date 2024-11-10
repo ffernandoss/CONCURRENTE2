@@ -1,4 +1,4 @@
-package org.example.concurrente2;
+package org.example.concurrente2.rabbitMQ;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;

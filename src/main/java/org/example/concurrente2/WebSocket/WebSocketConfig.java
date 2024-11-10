@@ -1,4 +1,4 @@
-package org.example.concurrente2;
+package org.example.concurrente2.WebSocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

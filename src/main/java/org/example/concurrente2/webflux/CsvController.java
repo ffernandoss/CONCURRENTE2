@@ -1,6 +1,6 @@
 package org.example.concurrente2.webflux;
 
-import org.example.concurrente2.ValorNormal;
+import org.example.concurrente2.Datos.ValorNormal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

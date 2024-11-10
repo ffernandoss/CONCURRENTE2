@@ -1,4 +1,4 @@
-package org.example.concurrente2;
+package org.example.concurrente2.WebSocket;
 
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;

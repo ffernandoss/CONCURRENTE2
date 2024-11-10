@@ -1,4 +1,4 @@
-package org.example.concurrente2;
+package org.example.concurrente2.Datos;
 
 
 import jakarta.persistence.*;

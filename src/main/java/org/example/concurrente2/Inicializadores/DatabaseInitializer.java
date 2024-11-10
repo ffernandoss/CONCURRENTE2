@@ -1,4 +1,4 @@
-package org.example.concurrente2;
+package org.example.concurrente2.Inicializadores;
 
 import org.example.concurrente2.webflux.CsvService;
 import org.springframework.beans.factory.annotation.Autowired;
