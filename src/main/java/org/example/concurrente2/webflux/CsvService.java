@@ -1,0 +1,44 @@
+package org.example.concurrente2.webflux;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+import org.example.concurrente2.ValorNormal;
+import org.example.concurrente2.ValorNormalRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+
+import java.io.FileReader;
+import java.io.IOException;
+
+@Service
+public class CsvService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CsvService.class);
+
+    @Autowired
+    private ValorNormalRepository valorNormalRepository;
+
+    @Transactional
+    public Flux<ValorNormal> loadCsvData(String filePath) {
+        logger.info("Starting to load CSV data from file: " + filePath);
+        return Flux.create(sink -> {
+            try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
+                String[] line;
+                while ((line = reader.readNext()) != null) {
+                    ValorNormal valorNormal = new ValorNormal();
+                    valorNormal.setValor(Double.parseDouble(line[0]));
+                    valorNormalRepository.save(valorNormal);
+                    sink.next(valorNormal);
+                }
+                sink.complete();
+            } catch (IOException | CsvValidationException e) {
+                logger.error("Error reading CSV file", e);
+                sink.error(e);
+            }
+        });
+    }
+}
