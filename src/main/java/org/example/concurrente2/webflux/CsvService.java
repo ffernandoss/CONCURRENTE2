@@ -35,6 +35,7 @@ public class CsvService {
     @Transactional
     public void clearDatabase() {
         valorNormalRepository.deleteAll();
+        entityManager.createNativeQuery("ALTER TABLE valor_normal AUTO_INCREMENT = 1").executeUpdate();
         logger.info("Base de datos vaciada y auto-increment reiniciado");
     }
 
@@ -50,8 +51,7 @@ public class CsvService {
                     ValorNormal valorNormal = new ValorNormal();
                     valorNormal.setValor(Double.parseDouble(line[0]));
                     valorNormalRepository.save(valorNormal);
-                    rabbitTemplate.convertAndSend("databaseQueue", "Nuevo valor cargado en la base de datos: " + valorNormal.getValor());
-                    sink.next(valorNormal);
+                    rabbitTemplate.convertAndSend("databaseQueue", "Nuevo valor cargado en la base de datos: ID = " + valorNormal.getId() + ", Valor = " + valorNormal.getValor());                    sink.next(valorNormal);
                 }
                 sink.complete();
             } catch (IOException | CsvValidationException e) {
