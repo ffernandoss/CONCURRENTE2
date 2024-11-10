@@ -1,38 +1,38 @@
 package org.example.concurrente2.webflux;
 
-import org.example.concurrente2.Datos.ValorNormal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class CsvController {
+    private final CsvService csvService;
 
-    private static final Logger logger = LoggerFactory.getLogger(CsvController.class);
-
-    @Autowired
-    private CsvService csvService;
-
-    @GetMapping("/load-csv")
-    public Flux<ValorNormal> loadCsv(@RequestParam String filePath) {
-        logger.info("Received request to load CSV from file: " + filePath);
-        return csvService.loadCsvData(filePath);
+    public CsvController(CsvService csvService) {
+        this.csvService = csvService;
     }
 
-    @PostMapping("/stop-loading")
-    public void stopLoading() {
-        logger.info("Received request to stop loading CSV data");
-        csvService.stopLoading();
-    }
-    @PostMapping("/restart-loading")
-    public void restartLoading() {
-        logger.info("Received request to restart loading CSV data");
-        csvService.restartLoading();
+    @PostMapping("/stop-loading-normal")
+    public Mono<Void> stopLoadingNormal() {
+        csvService.stopLoadingNormal();
+        return Mono.empty();
     }
 
+    @PostMapping("/stop-loading-exponential")
+    public Mono<Void> stopLoadingExponential() {
+        csvService.stopLoadingExponential();
+        return Mono.empty();
+    }
+
+    @PostMapping("/resume-loading-normal")
+    public Mono<Void> resumeLoadingNormal() {
+        csvService.resumeLoadingNormal();
+        return Mono.empty();
+    }
+
+    @PostMapping("/resume-loading-exponential")
+    public Mono<Void> resumeLoadingExponential() {
+        csvService.resumeLoadingExponential();
+        return Mono.empty();
+    }
 }

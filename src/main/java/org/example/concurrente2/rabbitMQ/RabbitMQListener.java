@@ -8,6 +8,10 @@ public class RabbitMQListener {
 
     @RabbitListener(queues = "databaseQueue")
     public void listen(String message) {
-        System.out.println("Mensaje recibido: " + message);
+        if (message.matches("\\d+ datos guardados")) {
+            System.out.println(message);
+        } else {
+            System.out.println("Mensaje recibido: " + message);
+        }
     }
 }
