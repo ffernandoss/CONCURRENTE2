@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.example.concurrente2.ValorNormal;
 import org.example.concurrente2.ValorNormalRepository;
+import org.example.concurrente2.WebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -51,7 +52,9 @@ public class CsvService {
                     ValorNormal valorNormal = new ValorNormal();
                     valorNormal.setValor(Double.parseDouble(line[0]));
                     valorNormalRepository.save(valorNormal);
-                    rabbitTemplate.convertAndSend("databaseQueue", "Nuevo valor cargado en la base de datos: ID = " + valorNormal.getId() + ", Valor = " + valorNormal.getValor());                    sink.next(valorNormal);
+                    rabbitTemplate.convertAndSend("databaseQueue", "Nuevo valor cargado en la base de datos: ID = " + valorNormal.getId() + ", Valor = " + valorNormal.getValor());
+                    WebSocketHandler.sendMessageToAll("{\"id\": " + valorNormal.getId() + "}");
+                    sink.next(valorNormal);
                 }
                 sink.complete();
             } catch (IOException | CsvValidationException e) {
