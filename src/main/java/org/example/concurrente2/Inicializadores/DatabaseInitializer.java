@@ -15,6 +15,5 @@ public class DatabaseInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         csvService.clearDatabase();
         csvService.loadCsvData("src/main/resources/datos_normales.csv").subscribe();
-        csvService.loadExponentialCsvData("src/main/resources/distribucion_exponencial.csv").subscribe();
     }
 }
