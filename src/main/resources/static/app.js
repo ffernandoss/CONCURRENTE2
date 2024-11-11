@@ -2,7 +2,11 @@ const socket = new WebSocket('ws://localhost:8080/notifications');
 
 socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
-    createBall(data.id, data.valorN !== undefined ? data.valorN : data.valorE);
+    if (data.type === 'normalComplete') {
+        window.location.href = 'exponencial.html';
+    } else {
+        createBall(data.id, data.valorN !== undefined ? data.valorN : data.valorE);
+    }
 };
 
 function createPins() {
@@ -90,16 +94,6 @@ document.getElementById('stop-normal-button').addEventListener('click', function
         });
 });
 
-document.getElementById('stop-exponential-button').addEventListener('click', function() {
-    fetch('/stop-loading-exponential', { method: 'POST' })
-        .then(response => {
-            if (response.ok) {
-                console.log('Flujo exponencial detenido');
-            } else {
-                console.error('Error al detener el flujo exponencial');
-            }
-        });
-});
 
 document.getElementById('resume-normal-button').addEventListener('click', function() {
     fetch('/resume-loading-normal', { method: 'POST' })
@@ -112,13 +106,15 @@ document.getElementById('resume-normal-button').addEventListener('click', functi
         });
 });
 
-document.getElementById('resume-exponential-button').addEventListener('click', function() {
-    fetch('/resume-loading-exponential', { method: 'POST' })
+document.getElementById('stop-normal-button').addEventListener('click', function() {
+    fetch('/stop-loading-normal', { method: 'POST' })
         .then(response => {
             if (response.ok) {
-                console.log('Flujo exponencial reanudado');
+                console.log('Flujo normal detenido');
             } else {
-                console.error('Error al reanudar el flujo exponencial');
+                console.error('Error al detener el flujo normal');
             }
         });
 });
+
+

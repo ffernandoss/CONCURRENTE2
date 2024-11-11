@@ -18,11 +18,7 @@ public class CsvController {
         return Mono.empty();
     }
 
-    @PostMapping("/stop-loading-exponential")
-    public Mono<Void> stopLoadingExponential() {
-        csvService.stopLoadingExponential();
-        return Mono.empty();
-    }
+
 
     @PostMapping("/resume-loading-normal")
     public Mono<Void> resumeLoadingNormal() {
@@ -30,9 +26,5 @@ public class CsvController {
         return Mono.empty();
     }
 
-    @PostMapping("/resume-loading-exponential")
-    public Mono<Void> resumeLoadingExponential() {
-        csvService.resumeLoadingExponential();
-        return Mono.empty();
-    }
+
 }

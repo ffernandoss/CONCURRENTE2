@@ -87,56 +87,16 @@ public class CsvService {
         });
     }
 
-    @Transactional
-    public Flux<ValorExponencial> loadExponentialCsvData(String filePath) {
-        logger.info("Iniciando la carga de datos exponenciales CSV desde el archivo: " + filePath);
-        stopExponentialFlag.set(false);
-        processedLines = 0;
-        return Flux.create(sink -> {
-            try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
-                String[] line;
-                int currentLine = 0;
-                while ((line = reader.readNext()) != null) {
-                    if (currentLine++ == 0) continue; // Skip header line
-                    if (stopExponentialFlag.get()) {
-                        lastProcessedLine = currentLine;
-                        sink.complete();
-                        break;
-                    }
-                    ValorExponencial valorExponencial = new ValorExponencial();
-                    valorExponencial.setValor(Double.parseDouble(line[0]));
-                    valorExponencialRepository.save(valorExponencial);
-                    rabbitTemplate.convertAndSend("databaseQueue", " EXPONENCIAL Nuevo valor cargado en la base de datos: ID = " + valorExponencial.getId() + ", Valor = " + valorExponencial.getValor());
-                    WebSocketHandler.sendMessageToAll("{\"id\": " + valorExponencial.getId() + ", \"valorE\": " + valorExponencial.getValor() + "}");
-                    sink.next(valorExponencial);
-                    processedLines++;
-                    if (processedLines % 100 == 0) {
-                        rabbitTemplate.convertAndSend("databaseQueue", processedLines + " datos guardados de la exponencial");
-                    }
-                    Thread.sleep(10);
-                }
-                sink.complete();
-            } catch (IOException | CsvValidationException | InterruptedException e) {
-                sink.error(e);
-            }
-        });
-    }
 
     public void stopLoadingNormal() {
         stopNormalFlag.set(true);
     }
 
-    public void stopLoadingExponential() {
-        stopExponentialFlag.set(true);
-    }
 
     public void resumeLoadingNormal() {
         stopNormalFlag.set(false);
         loadCsvData("src/main/resources/datos_normales.csv").subscribe();
     }
 
-    public void resumeLoadingExponential() {
-        stopExponentialFlag.set(false);
-        loadExponentialCsvData("src/main/resources/distribucion_exponencial.csv").subscribe();
-    }
+
 }
