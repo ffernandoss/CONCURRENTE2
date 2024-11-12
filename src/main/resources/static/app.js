@@ -2,11 +2,7 @@ const socket = new WebSocket('ws://localhost:8080/notifications');
 
 socket.onmessage = function(event) {
     const data = JSON.parse(event.data);
-    if (data.type === 'normalComplete') {
-        window.location.href = 'exponencial.html';
-    } else {
-        createBall(data.id, data.valorN !== undefined ? data.valorN : data.valorE);
-    }
+    createBall(data.id, data.valorN);
 };
 
 function createPins() {
@@ -94,7 +90,6 @@ document.getElementById('stop-normal-button').addEventListener('click', function
         });
 });
 
-
 document.getElementById('resume-normal-button').addEventListener('click', function() {
     fetch('/resume-loading-normal', { method: 'POST' })
         .then(response => {
@@ -105,16 +100,3 @@ document.getElementById('resume-normal-button').addEventListener('click', functi
             }
         });
 });
-
-document.getElementById('stop-normal-button').addEventListener('click', function() {
-    fetch('/stop-loading-normal', { method: 'POST' })
-        .then(response => {
-            if (response.ok) {
-                console.log('Flujo normal detenido');
-            } else {
-                console.error('Error al detener el flujo normal');
-            }
-        });
-});
-
-

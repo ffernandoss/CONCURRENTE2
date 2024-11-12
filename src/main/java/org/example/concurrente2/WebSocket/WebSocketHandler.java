@@ -24,7 +24,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    public static void sendMessageToAll(String message) {
+    public static synchronized void sendMessageToAll(String message) {
         for (WebSocketSession session : sessions) {
             try {
                 session.sendMessage(new TextMessage(message));

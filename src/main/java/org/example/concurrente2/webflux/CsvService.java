@@ -4,8 +4,6 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.example.concurrente2.Datos.ValorExponencial;
-import org.example.concurrente2.Datos.ValorExponencialRepository;
 import org.example.concurrente2.Datos.ValorNormal;
 import org.example.concurrente2.Datos.ValorNormalRepository;
 import org.example.concurrente2.WebSocket.WebSocketHandler;
@@ -30,25 +28,19 @@ public class CsvService {
     private ValorNormalRepository valorNormalRepository;
 
     @Autowired
-    private ValorExponencialRepository valorExponencialRepository;
-
-    @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     private final AtomicBoolean stopNormalFlag = new AtomicBoolean(false);
-    private final AtomicBoolean stopExponentialFlag = new AtomicBoolean(false);
     private int lastProcessedLine = 0;
     private int processedLines = 0;
 
     @Transactional
     public void clearDatabase() {
         valorNormalRepository.deleteAll();
-        valorExponencialRepository.deleteAll();
         entityManager.createNativeQuery("ALTER TABLE valor_normal AUTO_INCREMENT = 1").executeUpdate();
-        entityManager.createNativeQuery("ALTER TABLE valor_exponencial AUTO_INCREMENT = 1").executeUpdate();
         logger.info("Base de datos vaciada y auto-increment reiniciado");
     }
 
@@ -87,16 +79,12 @@ public class CsvService {
         });
     }
 
-
     public void stopLoadingNormal() {
         stopNormalFlag.set(true);
     }
-
 
     public void resumeLoadingNormal() {
         stopNormalFlag.set(false);
         loadCsvData("src/main/resources/datos_normales.csv").subscribe();
     }
-
-
 }
