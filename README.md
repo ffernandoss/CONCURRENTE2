@@ -1,4 +1,5 @@
 # Proyecto de Simulación de Pelotas con ID
+https://github.com/ffernandoss/CONCURRENTE2.git
 
 Este proyecto simula la caída de pelotas en un tablero con pines, formando una distribución normal. Utiliza tecnologías como Java, Spring Boot, WebSockets, RabbitMQ y D3.js.
 
