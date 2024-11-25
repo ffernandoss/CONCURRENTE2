@@ -90,6 +90,10 @@ document.getElementById('stop-normal-button').addEventListener('click', function
         });
 });
 
+
+
+
+
 document.getElementById('resume-normal-button').addEventListener('click', function() {
     fetch('/resume-loading-normal', { method: 'POST' })
         .then(response => {
